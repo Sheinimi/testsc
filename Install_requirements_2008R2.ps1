@@ -312,3 +312,4 @@ foreach ($action in $actions) {
         break
     }
 }
+PowerShell .\Install_winrm.ps1 -Verbose
