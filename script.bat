@@ -7,6 +7,8 @@ PowerShell Set-ExecutionPolicy ByPass -Force
 PowerShell ./Install_requirements_2008R2.ps1 -Verbose
 echo "Requirements installed."
 
+Pause
+
 call :reboot part2
 goto :eof
 
@@ -21,7 +23,6 @@ del %currentpath%\Install_requirements_2008R2.ps1 /f /q
 echo "Deleting Install_winrm.ps1"
 del %currentpath%\Install_winrm.ps1 /f /q
 Pause
-goto :eof
 del "%~f0" & exit
 
 :reboot
