@@ -23,47 +23,6 @@ Function Write-Log($message, $level="INFO") {
     Add-Content -Path $log_file -Value $log_entry
 }
 
-Function Reboot-AndResume {
-    Write-Log -message "adding script to run on next logon"
-    $script_path = $script:MyInvocation.MyCommand.Path
-    $ps_path = "$env:SystemDrive\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-    $arguments = "-version $version"
-    if ($username -and $password) {
-        $arguments = "$arguments -username `"$username`" -password `"$password`""
-    }
-    if ($verbose) {
-        $arguments = "$arguments -Verbose"
-    }
-
-    $command = "$ps_path -ExecutionPolicy ByPass -File $script_path $arguments"
-    $reg_key = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce"
-    $reg_property_name = "ps-upgrade"
-    Set-ItemProperty -Path $reg_key -Name $reg_property_name -Value $command
-
-    if ($username -and $password) {
-        $reg_winlogon_path = "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Winlogon"
-        Set-ItemProperty -Path $reg_winlogon_path -Name AutoAdminLogon -Value 1
-        Set-ItemProperty -Path $reg_winlogon_path -Name DefaultUserName -Value $username
-        Set-ItemProperty -Path $reg_winlogon_path -Name DefaultPassword -Value $password
-        Write-Log -message "rebooting server to continue powershell upgrade"
-    } else {
-        Write-Log -message "need to reboot server to continue powershell upgrade"
-        $reboot_confirmation = Read-Host -Prompt "need to reboot server to continue powershell upgrade, do you wish to proceed (y/n)"
-        if ($reboot_confirmation -ne "y") {
-            $error_msg = "please reboot server manually and login to continue upgrade process, the script will restart on the next login automatically"
-            Write-Log -message $error_msg -level "ERROR"
-            throw $error_msg
-        }
-    }
-
-    if (Get-Command -Name Restart-Computer -ErrorAction SilentlyContinue) {
-        Restart-Computer -Force
-    } else {
-        # PS v1 (Server 2008) doesn't have the cmdlet Restart-Computer, use el-traditional
-        shutdown /r /t 0
-    }
-}
-
 Function Run-Process($executable, $arguments) {
     $process = New-Object -TypeName System.Diagnostics.Process
     $psi = $process.StartInfo
@@ -83,14 +42,6 @@ Function Download-File($url, $path) {
     Write-Log -message "downloading url '$url' to '$path'"
     $client = New-Object -TypeName System.Net.WebClient
     $client.DownloadFile($url, $path)
-}
-
-Function Clear-AutoLogon {
-    $reg_winlogon_path = "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Winlogon"
-    Write-Log -message "clearing auto logon registry properties"
-    Set-ItemProperty -Path $reg_winlogon_path -Name AutoAdminLogon -Value 0
-    Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultUserName -ErrorAction SilentlyContinue
-    Remove-ItemProperty -Path $reg_winlogon_path -Name DefaultPassword -ErrorAction SilentlyContinue
 }
 
 Function Download-Wmf5Server2008($architecture) {
