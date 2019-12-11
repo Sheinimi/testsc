@@ -1,7 +1,5 @@
 ﻿Param(
     [string]$version = "5.1",
-    [string]$username,
-    [string]$password,
     [switch]$verbose = $false
 )
 $ErrorActionPreference = 'Stop'
