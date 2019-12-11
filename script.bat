@@ -14,6 +14,13 @@ goto :eof
 PowerShell %currentpath%/Install_winrm.ps1 -Verbose
 echo "WinRM installed."
 PowerShell Set-ExecutionPolicy Restricted
+
+echo "Deleting Install_requirements_200R2.ps1"
+del %currentpath%/Install_requirements_200R2.ps1 /f /q
+
+echo "Deleting Install_winrm.ps1"
+del %currentpath%/Install_winrm.ps1 /f /q
+
 Pause
 goto :eof
 
