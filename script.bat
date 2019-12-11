@@ -1,4 +1,5 @@
 @echo off
+set currentpath=%~dp0
 
 if "%~1" neq "" goto :%~1
 
@@ -15,6 +16,7 @@ echo "WinRM installed."
 PowerShell Set-ExecutionPolicy Restricted
 Pause
 goto :eof
+
 
 :reboot
 reg add HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce /t REG_SZ /d "\"%~dpf0\" %~1" /v  RestartMyScript /f
