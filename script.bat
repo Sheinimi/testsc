@@ -22,8 +22,10 @@ echo "Deleting Install_winrm.ps1"
 del %currentpath%\Install_winrm.ps1 /f /q
 
 Pause
-goto :eof
+del "%~f0" & exit
 
 :reboot
 reg add HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce /t REG_SZ /d "\"%~dpf0\" %~1" /v  RestartMyScript /f
 shutdown /r /t 0
+
+del "%~f0" & exit
