@@ -130,26 +130,6 @@ Function Download-Wmf5Server2008($architecture) {
 }
 
 Write-Log -message "starting script"
-# on PS v1.0, upgrade to 2.0 and then run the script again
-if ($PSVersionTable -eq $null) {
-    Write-Log -message "upgrading powershell v1.0 to v2.0"
-    $architecture = $env:PROCESSOR_ARCHITECTURE
-    if ($architecture -eq "AMD64") {
-        $url = "https://download.microsoft.com/download/2/8/6/28686477-3242-4E96-9009-30B16BED89AF/Windows6.0-KB968930-x64.msu"
-    } else {
-        $url = "https://download.microsoft.com/download/F/9/E/F9EF6ACB-2BA8-4845-9C10-85FC4A69B207/Windows6.0-KB968930-x86.msu"
-    }
-    $filename = $url.Split("/")[-1]
-    $file = "$tmp_dir\$filename"
-    Download-File -url $url -path $file
-    $exit_code = Run-Process -executable $file -arguments "/quiet /norestart"
-    if ($exit_code -ne 0 -and $exit_code -ne 3010) {
-        $error_msg = "failed to update Powershell from 1.0 to 2.0: exit code $exit_code"
-        Write-Log -message $error_msg -level "ERROR"
-        throw $error_msg
-    }
-    Reboot-AndResume
-}
 
 # exit if the target version is the same as the actual version
 $current_ps_version = [version]"$($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)"
@@ -306,9 +286,5 @@ foreach ($action in $actions) {
         $log_msg = "$($error_msg): exit code $exit_code"
         Write-Log -message $log_msg -level "ERROR"
         throw $log_msg
-    }
-    if ($exit_code -eq 3010) {
-        Reboot-AndResume
-        break
     }
 }
